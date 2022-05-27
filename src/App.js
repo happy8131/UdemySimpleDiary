@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import "./App.css";
 import DiaryEditor from "./DiaryEditor";
 import DiaryList from "./DiaryList";
+import LifeCycle from "./Lifecycle";
 
 function App() {
   const [data, setData] = useState([]);
@@ -40,6 +41,7 @@ function App() {
 
   return (
     <div className="App">
+      <LifeCycle />
       <DiaryEditor onCreate={onCreate} />
       <DiaryList onEdit={onEdit} onRemove={onRemove} diaryList={data} />
     </div>
@@ -47,3 +49,13 @@ function App() {
 }
 
 export default App;
+/*
+LifeCycle
+
+화면에 나타나는 것 Mount
+
+변화 update(리렌더)
+
+화면에 사라짐 UnMount
+
+ */
