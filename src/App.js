@@ -1,11 +1,37 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import "./App.css";
 import DiaryEditor from "./DiaryEditor";
 import DiaryList from "./DiaryList";
 
-function App() {
-  const [data, setData] = useState([]);
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "INIT": {
+      return action.data;
+    }
+    case "CREATE": {
+      const created_date = new Date().getTime();
+      const newItem = {
+        ...action.data,
+        created_date,
+      };
+      return [newItem, ...state];
+    }
+    case "REMOVE": {
+      return state.filter((it) => it.id !== action.targetId);
+    }
+    case "EDIT": {
+      return state.map((it) =>
+        it.id === action.targetId ? { ...it, content: action.newContent } : it
+      );
+    }
+    default:
+      return state;
+  }
+};
 
+function App() {
+  //const [data, setData] = useState([]);
+  const [data, dispatch] = useReducer(reducer, []);
   const dataId = useRef(0);
 
   const getData = async () => {
@@ -23,7 +49,9 @@ function App() {
         id: dataId.current++,
       };
     });
-    setData(initData);
+
+    dispatch({ type: "INIT", data: initData });
+    //setData(initData);
   };
 
   useEffect(() => {
@@ -31,31 +59,35 @@ function App() {
   }, []);
 
   const onCreate = useCallback((author, content, emotion) => {
-    const created_date = new Date().getTime();
-    const newItem = {
-      author,
-      content,
-      emotion,
-      created_date,
-      id: dataId.current,
-    };
+    dispatch({
+      type: "CREATE",
+      data: { author, content, emotion, id: dataId.current },
+    });
+    // const created_date = new Date().getTime();
+    // const newItem = {
+    //   author,
+    //   content,
+    //   emotion,
+    //   created_date,
+    //   id: dataId.current,
+    // };
     dataId.current += 1;
-    console.log(data);
-    setData((data) => [newItem, ...data]);
+
+    //   setData((data) => [newItem, ...data]);
   }, []); //Callback함수는 메모이제이션된걸 콜백한다
 
   const onRemove = useCallback((targetId) => {
-    // console.log(`${targetId}가 삭제되었습니다`);
-    setData((data) => data.filter((it) => it.id !== targetId));
-    // console.log(newDiaryList);
+    dispatch({ type: "REMOVE", targetId });
+    //setData((data) => data.filter((it) => it.id !== targetId));
   }, []);
 
   const onEdit = useCallback((targetId, newContent) => {
-    setData((data) =>
-      data.map((it) =>
-        it.id === targetId ? { ...it, content: newContent } : it
-      )
-    );
+    dispatch({ type: "EDIT", targetId, newContent });
+    // setData((data) =>
+    //   data.map((it) =>
+    //     it.id === targetId ? { ...it, content: newContent } : it
+    //   )
+    // );
     //수정대상이라면 newContent를 리턴해주고 아니면 원래 데이터(it)를 리턴해줄거다
   }, []);
 
