@@ -1,8 +1,10 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const DiaryEditor = ({ onCreate }) => {
   const [state, setState] = useState({ author: "", content: "", emotion: 1 });
-
+  useEffect(() => {
+    console.log("DiaryEditor 렌더");
+  });
   const authorInput = useRef(); //돔 요소에 접근 할 수 있다
   const contentInput = useRef();
 
@@ -70,5 +72,5 @@ const DiaryEditor = ({ onCreate }) => {
   );
 };
 
-export default DiaryEditor;
+export default React.memo(DiaryEditor);
 //onChange 이벤트는 값이 바뀌었을때 발생하는 이벤트
