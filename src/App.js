@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from "react";
 import "./App.css";
 import DiaryEditor from "./DiaryEditor";
 import DiaryList from "./DiaryList";
@@ -29,6 +35,10 @@ const reducer = (state, action) => {
   }
 };
 
+export const DiaryStateContext = React.createContext();
+
+export const DiaryDispatchContext = React.createContext();
+
 function App() {
   //const [data, setData] = useState([]);
   const [data, dispatch] = useReducer(reducer, []);
@@ -38,7 +48,6 @@ function App() {
     const res = await fetch(
       "https://jsonplaceholder.typicode.com/comments"
     ).then((res) => res.json());
-    //  console.log(res);
 
     const initData = res.slice(0, 20).map((it) => {
       return {
@@ -63,6 +72,7 @@ function App() {
       type: "CREATE",
       data: { author, content, emotion, id: dataId.current },
     });
+    dataId.current += 1;
     // const created_date = new Date().getTime();
     // const newItem = {
     //   author,
@@ -71,9 +81,8 @@ function App() {
     //   created_date,
     //   id: dataId.current,
     // };
-    dataId.current += 1;
 
-    //   setData((data) => [newItem, ...data]);
+    //setData((data) => [newItem, ...data]);
   }, []); //Callback함수는 메모이제이션된걸 콜백한다
 
   const onRemove = useCallback((targetId) => {
@@ -91,6 +100,10 @@ function App() {
     //수정대상이라면 newContent를 리턴해주고 아니면 원래 데이터(it)를 리턴해줄거다
   }, []);
 
+  const memoizedDispatches = useMemo(() => {
+    return { onCreate, onRemove, onEdit };
+  }, []);
+
   const getDiaryAnalysis = useMemo(() => {
     //console.log("일기 분석 시작");
 
@@ -104,14 +117,18 @@ function App() {
   const { goodCount, badCount, goodRatio } = getDiaryAnalysis; //useMemo를 하면 값으로 출력한다
 
   return (
-    <div className="App">
-      <DiaryEditor onCreate={onCreate} />
-      <div>전체 일기: {data.length}</div>
-      <div>기분 좋은 일기 개수 : {goodCount}</div>
-      <div>기분 나쁜 일기 개수 : {badCount}</div>
-      <div>기분 좋은 일기 비율 : {goodRatio}</div>
-      <DiaryList onEdit={onEdit} onRemove={onRemove} diaryList={data} />
-    </div>
+    <DiaryStateContext.Provider value={data}>
+      <DiaryDispatchContext.Provider value={memoizedDispatches}>
+        <div className="App">
+          <DiaryEditor />
+          <div>전체 일기: {data.length}</div>
+          <div>기분 좋은 일기 개수 : {goodCount}</div>
+          <div>기분 나쁜 일기 개수 : {badCount}</div>
+          <div>기분 좋은 일기 비율 : {goodRatio}</div>
+          <DiaryList />
+        </div>
+      </DiaryDispatchContext.Provider>
+    </DiaryStateContext.Provider>
   );
 }
 
@@ -125,4 +142,8 @@ LifeCycle
 
 화면에 사라짐 UnMount
 
+useContext는 (context:문맥)
+프롭스 드릴링 문제를 해결하기 위한거다.
+Provider라는 공급자가 자식컴포넌트에게 자신이 가지고 있는 모든 데이터를 준다
+데이터를 직통으로 줄 수 있다
  */
