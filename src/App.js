@@ -44,21 +44,20 @@ function App() {
     setData((data) => [newItem, ...data]);
   }, []); //Callback함수는 메모이제이션된걸 콜백한다
 
-  const onRemove = (targetId) => {
+  const onRemove = useCallback((targetId) => {
     // console.log(`${targetId}가 삭제되었습니다`);
-    const newDiaryList = data.filter((it) => it.id !== targetId);
+    setData((data) => data.filter((it) => it.id !== targetId));
     // console.log(newDiaryList);
-    setData(newDiaryList);
-  };
+  }, []);
 
-  const onEdit = (targetId, newContent) => {
-    setData(
+  const onEdit = useCallback((targetId, newContent) => {
+    setData((data) =>
       data.map((it) =>
         it.id === targetId ? { ...it, content: newContent } : it
       )
     );
     //수정대상이라면 newContent를 리턴해주고 아니면 원래 데이터(it)를 리턴해줄거다
-  };
+  }, []);
 
   const getDiaryAnalysis = useMemo(() => {
     //console.log("일기 분석 시작");

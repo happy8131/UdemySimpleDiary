@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
 const DiaryEditor = ({ onCreate }) => {
   const [state, setState] = useState({ author: "", content: "", emotion: 1 });
-  useEffect(() => {
-    console.log("DiaryEditor 렌더");
-  });
+  // useEffect(() => {
+  //   console.log("DiaryEditor 렌더");
+  // });
   const authorInput = useRef(); //돔 요소에 접근 할 수 있다
   const contentInput = useRef();
 
